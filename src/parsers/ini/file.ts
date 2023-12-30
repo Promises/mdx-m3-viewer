@@ -9,14 +9,18 @@ export type IniSection = Map<string, string>;
 export class IniFile {
   properties: Map<string, string> = new Map();
   sections: Map<string, IniSection> = new Map();
+  lineEnding: string = '\r\n'; // Default line ending
 
   load(buffer: string): void {
+    // Detect line ending
+    this.lineEnding = buffer.includes('\r\n') ? '\r\n' : (buffer.includes('\n') ? '\n' : '\r');
+
     // All properties added until a section is reached are added to the properties map.
     // Once a section is reached, any further properties will be added to it until matching another section, etc.
     let section: IniSection | null = this.properties;
     const sections = this.sections;
 
-    for (const line of buffer.split('\r\n')) {
+    for (const line of buffer.split(/\r\n|\r|\n/)) {
       // INI defines comments as starting with a semicolon ';'.
       // However, Warcraft 3 INI files use normal C comments '//'.
       // In addition, Warcraft 3 files have empty lines.
@@ -66,7 +70,7 @@ export class IniFile {
       }
     }
 
-    return lines.join('\r\n');
+    return lines.join(this.lineEnding); // Use the detected/stored line ending
   }
 
   getSection(name: string): IniSection | undefined {
