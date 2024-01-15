@@ -68,9 +68,9 @@ export default class BinaryStream {
 
   /**
    * Read a UTF8 string with the given number of bytes.
-   * 
+   *
    * The entire size will be read, however the string returned is NULL terminated in its memory block.
-   * 
+   *
    * For example, the MDX format has many strings that have a constant maximum size, where any bytes after the string are NULLs.
    * Such strings will be loaded correctly given the maximum size.
    */
@@ -127,16 +127,19 @@ export default class BinaryStream {
 
     const uint8array = this.uint8array;
     const index = this.index;
-    let data = '';
+    let chars = [];
 
     for (let i = 0; i < bytes; i++) {
-      data += String.fromCharCode(uint8array[index + i]);
+      chars.push(uint8array[index + i])
     }
 
     this.index += bytes;
     this.remaining -= bytes;
 
-    return data;
+    return chars.map((ch) => {
+      if (ch === 0x0) return '0';
+      return String.fromCharCode(ch);
+    }).join('');
   }
 
   /**
@@ -496,7 +499,7 @@ export default class BinaryStream {
 
   /**
    * Write a UTF8 string.
-   * 
+   *
    * Returns the number of bytes that were written,
    */
   write(utf8: string): number {
@@ -509,7 +512,7 @@ export default class BinaryStream {
 
   /**
    * Write a UTF8 string as a NULL terminated string.
-   * 
+   *
    * Returns the number of bytes that were written, including the terminating NULL.
    */
   writeNull(utf8: string): number {
