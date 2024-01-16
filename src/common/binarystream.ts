@@ -130,16 +130,14 @@ export default class BinaryStream {
     let chars = [];
 
     for (let i = 0; i < bytes; i++) {
-      chars.push(uint8array[index + i])
+      const byte = uint8array[index + i];
+      chars.push(byte === 0x0 ? '0' : String.fromCharCode(byte))
     }
 
     this.index += bytes;
     this.remaining -= bytes;
 
-    return chars.map((ch) => {
-      if (ch === 0x0) return '0';
-      return String.fromCharCode(ch);
-    }).join('');
+    return chars.join('');
   }
 
   /**
